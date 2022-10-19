@@ -30,18 +30,18 @@ namespace Examples
       Ros2cs.Init();
       INode node = Ros2cs.CreateNode("service");
       my_service = node.CreateService<example_interfaces.srv.AddTwoInts_Request, example_interfaces.srv.AddTwoInts_Response>(
-        "add_two_ints", msg => { recv_callback (msg);});
+        "add_two_ints", recv_callback);
 
       Ros2cs.Spin(node);
       Ros2cs.Shutdown();
     }
 
-    public static void recv_callback ( example_interfaces.srv.AddTwoInts_Request msg )
+    public static example_interfaces.srv.AddTwoInts_Response recv_callback ( example_interfaces.srv.AddTwoInts_Request msg )
     {
       Console.WriteLine ("Incoming Service Request A=" + msg.A + " B=" + msg.B);
       example_interfaces.srv.AddTwoInts_Response response = new example_interfaces.srv.AddTwoInts_Response();
       response.Sum = msg.A + msg.B;
-      my_service.SendResp(response);
+      return response;
     }
   }
 }

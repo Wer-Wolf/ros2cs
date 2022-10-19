@@ -37,7 +37,5 @@ namespace ROS2
   public interface IService<I, O>: IServiceBase
     where I: Message
     where O: Message
-  {
-    void SendResp(O msg);
-  }
+  {}
 }

@@ -33,22 +33,20 @@ namespace ROS2
     private bool disposed = false;
 
     private rcl_node_t nodeHandle;
-    private readonly Action<I> callback;
+    private readonly Func<I, O> callback;
     private IntPtr serviceOptions;
 
     public object Mutex { get { return mutex; } }
     private object mutex = new object();
 
-    private rcl_rmw_request_id_t request_header;
-
     /// <summary> Tries to send a response message to rcl/rmw layers. </summary>
     // TODO(adamdbrw) this should not be public - add an internal interface
-    public void SendResp(O msg)
+    private void SendResp(rcl_rmw_request_id_t header, O msg)
     {
       RCLReturnEnum ret;
       MessageInternals msgInternals = msg as MessageInternals;
       msgInternals.WriteNativeMessage();
-      ret = (RCLReturnEnum)NativeRcl.rcl_send_response(ref serviceHandle, ref request_header, msgInternals.Handle);
+      ret = (RCLReturnEnum)NativeRcl.rcl_send_response(ref serviceHandle, ref header, msgInternals.Handle);
     }
 
     /// <summary> Tries to get a request message from rcl/rmw layers. Calls the callback if successful </summary>
@@ -56,6 +54,7 @@ namespace ROS2
     public void TakeMessage()
     {
       RCLReturnEnum ret;
+      rcl_rmw_request_id_t header = default;
       MessageInternals message;
 
       lock (mutex)
@@ -66,14 +65,14 @@ namespace ROS2
         }
         message = CreateMessage();
 
-	ret = (RCLReturnEnum)NativeRcl.rcl_take_request(ref serviceHandle, ref request_header,  message.Handle);
+	ret = (RCLReturnEnum)NativeRcl.rcl_take_request(ref serviceHandle, ref header,  message.Handle);
       }
 
       bool gotMessage = ret == RCLReturnEnum.RCL_RET_OK;
 
       if (gotMessage)
       {
-        TriggerCallback(message);
+        TriggerCallback(header, message);
       }
     }
 
@@ -85,21 +84,21 @@ namespace ROS2
 
     /// <summary> Populates managed fields with native values and calls the callback with created message </summary>
     /// <param name="message"> Message that will be populated and returned through callback </param>
-    private void TriggerCallback(MessageInternals message)
+    private void TriggerCallback(rcl_rmw_request_id_t header, MessageInternals message)
     {
       message.ReadNativeMessage();
-      callback((I)message);
+      O response = callback((I)message);
+      SendResp(header, response);
     }
 
     /// <summary> Internal constructor for Service. Use INode.CreateService to construct </summary>
     /// <see cref="INode.CreateService"/>
-    internal Service(string subTopic, Node node, Action<I> cb, QualityOfServiceProfile qos = null)
+    internal Service(string subTopic, Node node, Func<I, O> cb, QualityOfServiceProfile qos = null)
     {
       callback = cb;
       nodeHandle = node.nodeHandle;
       topic = subTopic;
       serviceHandle = NativeRcl.rcl_get_zero_initialized_service();
-      request_header = new rcl_rmw_request_id_t();
 
       QualityOfServiceProfile qualityOfServiceProfile = qos;
       if (qualityOfServiceProfile == null)

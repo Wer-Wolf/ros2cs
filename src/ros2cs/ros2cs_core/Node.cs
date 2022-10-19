@@ -165,7 +165,7 @@ namespace ROS2
 
     /// <summary> Create a service for this node for a given topic, callback, qos and message type </summary>
     /// <see cref="INode.CreateService"/>
-    public Service<I, O> CreateService<I, O>(string topic, Action<I> callback, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new()
+    public Service<I, O> CreateService<I, O>(string topic, Func<I, O> callback, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new()
     {
       lock (mutex)
       {
