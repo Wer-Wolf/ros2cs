@@ -30,7 +30,10 @@ namespace ROS2
         public IExecutor Executor { get; private set; }
 
         /// <inheritdoc/>
-        public bool IsDisposed { get { return !this.Ok(); } }
+        public bool IsDisposed
+        {
+            get { return !NativeRcl.rcl_node_is_valid(this.Handle); }
+        }
 
         internal IntPtr Handle = IntPtr.Zero;
 
@@ -93,12 +96,6 @@ namespace ROS2
         }
 
         /// <inheritdoc/>
-        public bool Ok()
-        {
-            return NativeRcl.rcl_node_is_valid(this.Handle);
-        }
-
-        /// <inheritdoc/>
         public bool TrySetExecutor(IExecutor executor)
         {
             return this.TrySetExecutor(executor, out _);
@@ -122,7 +119,7 @@ namespace ROS2
         }
 
         /// <inheritdoc/>
-        public Publisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : Message, new()
+        public IPublisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : Message, new()
         {
             this.AssertOk();
             Publisher<T> publisher = new Publisher<T>(topic, this, qos);
@@ -131,7 +128,7 @@ namespace ROS2
         }
 
         /// <inheritdoc/>
-        public Subscription<T> CreateSubscription<T>(string topic, Action<T> callback, QualityOfServiceProfile qos = null) where T : Message, new()
+        public ISubscription<T> CreateSubscription<T>(string topic, Action<T> callback, QualityOfServiceProfile qos = null) where T : Message, new()
         {
             this.AssertOk();
             Subscription<T> subscription = new Subscription<T>(topic, this, callback, qos);
@@ -141,7 +138,7 @@ namespace ROS2
         }
 
         /// <inheritdoc/>
-        public Client<I, O> CreateClient<I, O>(string topic, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new()
+        public IClient<I, O> CreateClient<I, O>(string topic, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new()
         {
             this.AssertOk();
             Client<I, O> client = new Client<I, O>(topic, this, qos);
@@ -151,7 +148,7 @@ namespace ROS2
         }
 
         /// <inheritdoc/>
-        public Service<I, O> CreateService<I, O>(string topic, Func<I, O> callback, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new()
+        public IService<I, O> CreateService<I, O>(string topic, Func<I, O> callback, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new()
         {
             this.AssertOk();
             Service<I, O> service = new Service<I, O>(topic, this, callback, qos);

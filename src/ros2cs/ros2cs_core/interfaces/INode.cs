@@ -45,9 +45,6 @@ namespace ROS2
         /// </remarks>
         IExecutor Executor { get; }
 
-        /// <summary> Check if the instance is valid (has not been disposed). </summary>
-        bool Ok();
-
         /// <summary>
         /// Try to change the executor of this node.
         /// </summary>
@@ -67,7 +64,7 @@ namespace ROS2
         /// <param name="topic"> Topic for the publisher. Naming restrictions of ros2 apply and violation results in an exception </param>
         /// <param name="qos"> Quality of Service settings. Not passing this parameter will result in default settings </param>
         /// <returns> Publisher for the topic, which can be used to publish messages </returns>
-        Publisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : Message, new();
+        IPublisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : Message, new();
 
         /// <summary>
         /// Publishers created on this node.
@@ -79,7 +76,7 @@ namespace ROS2
         /// <param name="callback"> Action to be called when message is received (through Spin or SpinOnce). Provide a lambda or a method </param>
         /// <param name="qos"> Quality of Service settings. Not passing this parameter will result in default settings </param>
         /// <returns> Subscription for the topic </returns>
-        Subscription<T> CreateSubscription<T>(string topic, Action<T> callback, QualityOfServiceProfile qos = null) where T : Message, new();
+        ISubscription<T> CreateSubscription<T>(string topic, Action<T> callback, QualityOfServiceProfile qos = null) where T : Message, new();
 
         /// <summary>
         /// Subscriptions created on this node.
@@ -90,7 +87,7 @@ namespace ROS2
         /// <param name="topic"> Topic for the client. Naming restrictions of ros2 apply and violation results in an exception </param>
         /// <param name="qos"> Quality of Client settings. Not passing this parameter will result in default settings </param>
         /// <returns> Client for the topic, which can be used to client messages </returns>
-        Client<I, O> CreateClient<I, O>(string topic, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new();
+        IClient<I, O> CreateClient<I, O>(string topic, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new();
 
         /// <summary>
         /// Clients created on this node.
@@ -102,7 +99,7 @@ namespace ROS2
         /// <param name="callback"> Action to be called when message is received. Provide a lambda or a method </param>
         /// <param name="qos"> Quality of Service settings. Not passing this parameter will result in default settings </param>
         /// <returns> Service for the topic </returns>
-        Service<I, O> CreateService<I, O>(string topic, Func<I, O> callback, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new();
+        IService<I, O> CreateService<I, O>(string topic, Func<I, O> callback, QualityOfServiceProfile qos = null) where I : Message, new() where O : Message, new();
 
         /// <summary>
         /// Services created on this node.

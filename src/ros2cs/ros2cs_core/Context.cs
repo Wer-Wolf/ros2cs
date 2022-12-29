@@ -89,7 +89,7 @@ namespace ROS2
             }
             else
             {
-                Node ROSNode = new Node(name, this.Handle);
+                Node ROSNode = new Node(name, this);
                 this.ROSNodes.Add(name, ROSNode);
                 node = ROSNode;
                 return true;
