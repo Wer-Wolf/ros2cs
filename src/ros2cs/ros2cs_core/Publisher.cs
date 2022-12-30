@@ -25,6 +25,22 @@ namespace ROS2
         public string Topic { get; private set; }
 
         /// <inheritdoc/>
+        public ulong SubscriptionCount
+        {
+            get
+            {
+                this.AssertOk();
+
+                UIntPtr count = UIntPtr.Zero;
+                int ret = NativeRcl.rcl_publisher_get_subscription_count(this.Handle, ref count);
+
+                Utils.CheckReturnEnum(ret);
+
+                return count.ToUInt64();
+            }
+        }
+
+        /// <inheritdoc/>
         public bool IsDisposed
         {
             get { return !NativeRcl.rcl_publisher_is_valid(this.Handle); }

@@ -445,5 +445,14 @@ namespace ROS2
         nativeRCUtils,
         "rcutils_reset_error"),
         typeof(ResetErrorType));
-  }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate int RclPublisherGetSubscriptionCount(IntPtr publisher, ref UIntPtr count);
+    internal static RclPublisherGetSubscriptionCount
+        rcl_publisher_get_subscription_count =
+        (RclPublisherGetSubscriptionCount)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
+        nativeRCL,
+        "rcl_publisher_get_subscription_count"),
+        typeof(RclPublisherGetSubscriptionCount));
+    }
 }
