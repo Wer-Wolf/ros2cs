@@ -23,6 +23,9 @@ namespace ROS2
     {
         /// <summary> Topic of this subscription. </summary>
         string Topic { get; }
+
+        /// <summary> Number of matched publishers. </summary>
+        ulong PublisherCount { get; }
     }
 
     /// <summary> Internal subscription extensions. </summary>

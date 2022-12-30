@@ -26,6 +26,22 @@ namespace ROS2
         public string Topic { get; private set; }
 
         /// <inheritdoc/>
+        public ulong PublisherCount
+        {
+            get
+            {
+                this.AssertOk();
+
+                UIntPtr count = UIntPtr.Zero;
+                int ret = NativeRcl.rcl_subscription_get_publisher_count(this.Handle, ref count);
+
+                Utils.CheckReturnEnum(ret);
+
+                return count.ToUInt64();
+            }
+        }
+
+        /// <inheritdoc/>
         public bool IsDisposed
         {
             get { return !NativeRcl.rcl_subscription_is_valid(this.Handle); }
@@ -63,6 +79,17 @@ namespace ROS2
             {
                 this.FreeHandles();
                 Utils.CheckReturnEnum(ret);
+            }
+        }
+
+        /// <summary>
+        /// Assert that the subscription has not been disposed.
+        /// </summary>
+        private void AssertOk()
+        {
+            if (this.IsDisposed)
+            {
+                throw new ObjectDisposedException($"subscription for topic '{this.Topic}'");
             }
         }
 
